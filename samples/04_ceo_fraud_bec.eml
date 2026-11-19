@@ -1,0 +1,20 @@
+Received: from mx.example.org (mx.example.org [198.51.100.20]) by inbox.example.org with ESMTPS id g7; Thu, 08 Oct 2026 10:00:20 +0000
+Received: from smtp.example.invalid (smtp.example.invalid [203.0.113.45]) by mx.example.org with SMTP id h8; Thu, 08 Oct 2026 10:30:05 +0000
+Authentication-Results: mx.example.org; spf=pass smtp.mailfrom=freemail.example.net; dkim=pass header.d=freemail.example.net; dmarc=pass header.from=freemail.example.net
+Return-Path: <ceo.office@freemail.example.net>
+From: "Jane Doe (ceo@example.org)" <jane.d.office@freemail.example.net>
+Reply-To: jane.payments@mail.example.com
+To: finance@example.org
+Subject: Quick favour - confidential
+Date: Thu, 08 Oct 2026 10:00:00 +0000
+Message-ID: <bec-77@freemail.example.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+
+Hi,
+
+I'm in a meeting and cannot take calls. I need you to process a wire transfer today,
+it is time-sensitive and confidential. Also buy 5 gift cards for a client and send me the codes.
+Reply directly to this email with the bank details once done.
+
+Jane

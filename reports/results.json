@@ -1,0 +1,5340 @@
+{
+  "tool": "emailrisk",
+  "version": "1.0.0",
+  "summary": {
+    "messages": 85,
+    "by_level": {
+      "Low": 9,
+      "Medium": 35,
+      "High": 41
+    },
+    "mean_score": 52.1,
+    "rule_frequency": {
+      "BODY-URGENCY": 75,
+      "LNK-UNRELATED": 74,
+      "LNK-RESERVED-TLD": 73,
+      "AUTH-SPF-NONE": 28,
+      "AUTH-DKIM-FAIL": 26,
+      "AUTH-DKIM-NONE": 25,
+      "HDR-REPLYTO": 19,
+      "AUTH-SPF-FAIL": 17,
+      "AUTH-SPF-SOFTFAIL": 17,
+      "ATT-GENERIC": 13,
+      "BODY-CREDENTIAL": 2,
+      "HDR-DISPLAYNAME": 2,
+      "LNK-HTTP": 2,
+      "LNK-IP": 2,
+      "LNK-LOOKALIKE": 2,
+      "LNK-MISMATCH": 2,
+      "ATT-DOUBLEEXT": 1,
+      "AUTH-DKIM-WEAK": 1,
+      "AUTH-DMARC-FAIL": 1,
+      "BODY-FORM": 1,
+      "BODY-THREAT": 1,
+      "HDR-MSGID": 1,
+      "HDR-TIMESKEW": 1,
+      "LNK-BRAND": 1,
+      "LNK-PUNYCODE": 1,
+      "LNK-SHORTENER": 1,
+      "LNK-SUSPICIOUS-TLD": 1,
+      "LNK-USERINFO": 1
+    }
+  },
+  "validation": {
+    "labelled": 80,
+    "exact_agreement": 0.5125,
+    "within_one_level": 1.0,
+    "confusion_matrix": {
+      "Low": {
+        "Low": 8,
+        "Medium": 0,
+        "High": 0
+      },
+      "Medium": {
+        "Low": 0,
+        "Medium": 17,
+        "High": 21
+      },
+      "High": {
+        "Low": 0,
+        "Medium": 18,
+        "High": 16
+      }
+    },
+    "suspicious_vs_low": {
+      "tp": 72,
+      "fp": 0,
+      "fn": 0,
+      "tn": 8,
+      "precision": 1.0,
+      "recall": 1.0,
+      "specificity": 1.0
+    },
+    "per_level_recall": {
+      "Low": 1.0,
+      "Medium": 0.4473684210526316,
+      "High": 0.47058823529411764
+    },
+    "expected_distribution": {
+      "Medium": 38,
+      "High": 34,
+      "Low": 8
+    }
+  },
+  "results": [
+    {
+      "message_id": "20261005090000.1234@mail.example.com",
+      "source": "samples/01_legitimate_notification.eml",
+      "sender": "billing@example.com",
+      "subject": "Your October statement is ready",
+      "score": 0,
+      "level": "Low",
+      "findings": [],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "pass",
+        "dkim": "pass",
+        "dmarc": "pass"
+      },
+      "hops": [
+        {
+          "from": "mail.example.com",
+          "by": "mx.example.org",
+          "ip": "198.51.100.10",
+          "timestamp": 1791190805.0
+        },
+        {
+          "from": "app01.example.com",
+          "by": "mail.example.com",
+          "ip": "10.0.0.5",
+          "timestamp": 1791190801.0
+        }
+      ],
+      "details": {
+        "display_name": "Example Billing",
+        "reply_to": "",
+        "return_path": "bounce@example.com",
+        "message_id_domain": "mail.example.com",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": null,
+      "primary_indicator": null
+    },
+    {
+      "message_id": "phish-001@sender.example.invalid",
+      "source": "samples/02_credential_phish.eml",
+      "sender": "security@account-verify.example.net",
+      "subject": "URGENT: Your account has been suspended - action required",
+      "score": 100,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-SPF-FAIL",
+          "category": "Authentication",
+          "title": "SPF check failed: sending host is not authorised for the envelope domain",
+          "points": 20,
+          "evidence": "spf=fail"
+        },
+        {
+          "rule_id": "BODY-THREAT",
+          "category": "Language",
+          "title": "Threat or account-suspension language",
+          "points": 20,
+          "evidence": "subject: 'account has been suspended', 'account will be suspended', 'unauthorized activity'"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 20,
+          "evidence": "subject: 'action required', 'failure to respond', 'immediately' (+2 more)"
+        },
+        {
+          "rule_id": "LNK-IP",
+          "category": "Links",
+          "title": "Link points to a raw IP address",
+          "points": 20,
+          "evidence": "hxxp://203[.]0[.]113[.]77/collect"
+        },
+        {
+          "rule_id": "LNK-LOOKALIKE",
+          "category": "Links",
+          "title": "Link domain is a look-alike of the sender's domain",
+          "points": 20,
+          "evidence": "example[.]invalid ~ example.net"
+        },
+        {
+          "rule_id": "LNK-MISMATCH",
+          "category": "Links",
+          "title": "Link text shows one domain but points to another",
+          "points": 20,
+          "evidence": "text 'https://www.paypal.com/verify' -> paypa1-secure-login[.]example[.]invalid"
+        },
+        {
+          "rule_id": "HDR-REPLYTO",
+          "category": "Header spoofing",
+          "title": "Reply-To points to a different domain than From",
+          "points": 18,
+          "evidence": "From=security@account-verify.example.net; Reply-To=helpdesk.recovery@gmail.example.com"
+        },
+        {
+          "rule_id": "AUTH-DMARC-FAIL",
+          "category": "Authentication",
+          "title": "DMARC evaluation failed for the From domain",
+          "points": 15,
+          "evidence": "dmarc=fail"
+        },
+        {
+          "rule_id": "BODY-FORM",
+          "category": "Links",
+          "title": "Message embeds a password-entry form",
+          "points": 15,
+          "evidence": "<input type=password>"
+        },
+        {
+          "rule_id": "HDR-DISPLAYNAME",
+          "category": "Header spoofing",
+          "title": "Display name impersonates 'paypal' but the address is on another domain",
+          "points": 15,
+          "evidence": "name='PayPal Support'; actual=security@account-verify.example.net"
+        },
+        {
+          "rule_id": "LNK-BRAND",
+          "category": "Links",
+          "title": "Link domain imitates a well-known brand",
+          "points": 15,
+          "evidence": "paypa1-secure-login[.]example[.]invalid ~ paypal"
+        },
+        {
+          "rule_id": "BODY-CREDENTIAL",
+          "category": "Language",
+          "title": "Request to verify, update or submit sensitive information",
+          "points": 10,
+          "evidence": "body: 'verify your identity'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "hxxp://paypa1-secure-login[.]example[.]invalid/verify?id=8841"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "paypa1-secure-login[.]example[.]invalid, www[.]paypal[.]com"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        },
+        {
+          "rule_id": "LNK-HTTP",
+          "category": "Links",
+          "title": "Link uses unencrypted HTTP",
+          "points": 4,
+          "evidence": "hxxp://paypa1-secure-login[.]example[.]invalid/verify?id=8841, hxxp://203[.]0[.]113[.]77/collect"
+        },
+        {
+          "rule_id": "HDR-MSGID",
+          "category": "Header spoofing",
+          "title": "Message-ID generated by a different domain than From",
+          "points": 3,
+          "evidence": "Message-ID domain=sender.example.invalid; From=account-verify.example.net"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "fail",
+        "dkim": "none",
+        "dmarc": "fail"
+      },
+      "hops": [
+        {
+          "from": "mx.example.org",
+          "by": "inbox.example.org",
+          "ip": "198.51.100.20",
+          "timestamp": 1791295330.0
+        },
+        {
+          "from": "mail-relay.invalid",
+          "by": "mx.example.org",
+          "ip": "203.0.113.77",
+          "timestamp": 1791295328.0
+        }
+      ],
+      "details": {
+        "display_name": "PayPal Support",
+        "reply_to": "helpdesk.recovery@gmail.example.com",
+        "return_path": "bounce@mailer.example.net",
+        "message_id_domain": "sender.example.invalid",
+        "links": "3",
+        "attachments": ""
+      },
+      "expected": null,
+      "primary_indicator": null
+    },
+    {
+      "message_id": "inv-1043@example.net",
+      "source": "samples/03_malware_attachment.eml",
+      "sender": "ap@example.net",
+      "subject": "Invoice 2026-1043 attached",
+      "score": 67,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "ATT-DOUBLEEXT",
+          "category": "Attachments",
+          "title": "Attachment hides an executable behind a document extension",
+          "points": 25,
+          "evidence": "Invoice_2026-1043.pdf.exe"
+        },
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "AUTH-SPF-SOFTFAIL",
+          "category": "Authentication",
+          "title": "SPF soft-fail: sending host is discouraged for the envelope domain",
+          "points": 10,
+          "evidence": "spf=softfail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 8,
+          "evidence": "body: 'as soon as possible'"
+        },
+        {
+          "rule_id": "AUTH-DKIM-WEAK",
+          "category": "Authentication",
+          "title": "DKIM signature uses a deprecated hash algorithm",
+          "points": 4,
+          "evidence": "a=rsa-sha1"
+        }
+      ],
+      "notes": [],
+      "auth": {
+        "spf": "softfail",
+        "dkim": "fail",
+        "dmarc": "none"
+      },
+      "hops": [
+        {
+          "from": "mx.example.org",
+          "by": "inbox.example.org",
+          "ip": "198.51.100.20",
+          "timestamp": 1791360940.0
+        },
+        {
+          "from": "unknown",
+          "by": "mx.example.org",
+          "ip": "203.0.113.99",
+          "timestamp": 1791360938.0
+        }
+      ],
+      "details": {
+        "display_name": "Accounts Payable",
+        "reply_to": "",
+        "return_path": "",
+        "message_id_domain": "example.net",
+        "links": "0",
+        "attachments": "Invoice_2026-1043.pdf.exe"
+      },
+      "expected": null,
+      "primary_indicator": null
+    },
+    {
+      "message_id": "bec-77@freemail.example.net",
+      "source": "samples/04_ceo_fraud_bec.eml",
+      "sender": "jane.d.office@freemail.example.net",
+      "subject": "Quick favour - confidential",
+      "score": 64,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "BODY-CREDENTIAL",
+          "category": "Language",
+          "title": "Request to verify, update or submit sensitive information",
+          "points": 18,
+          "evidence": "body: 'bank details', 'gift cards', 'wire transfer'"
+        },
+        {
+          "rule_id": "HDR-REPLYTO",
+          "category": "Header spoofing",
+          "title": "Reply-To points to a different domain than From",
+          "points": 18,
+          "evidence": "From=jane.d.office@freemail.example.net; Reply-To=jane.payments@mail.example.com"
+        },
+        {
+          "rule_id": "HDR-DISPLAYNAME",
+          "category": "Header spoofing",
+          "title": "Display name embeds an address from a different domain",
+          "points": 15,
+          "evidence": "name='Jane Doe (ceo@example.org)'; actual=jane.d.office@freemail.example.net"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 8,
+          "evidence": "body: 'time-sensitive'"
+        },
+        {
+          "rule_id": "HDR-TIMESKEW",
+          "category": "Header spoofing",
+          "title": "Received timestamps run backwards (forged or relayed header)",
+          "points": 5,
+          "evidence": "1785 s skew between hops"
+        }
+      ],
+      "notes": [],
+      "auth": {
+        "spf": "pass",
+        "dkim": "pass",
+        "dmarc": "pass"
+      },
+      "hops": [
+        {
+          "from": "mx.example.org",
+          "by": "inbox.example.org",
+          "ip": "198.51.100.20",
+          "timestamp": 1791453620.0
+        },
+        {
+          "from": "smtp.example.invalid",
+          "by": "mx.example.org",
+          "ip": "203.0.113.45",
+          "timestamp": 1791455405.0
+        }
+      ],
+      "details": {
+        "display_name": "Jane Doe (ceo@example.org)",
+        "reply_to": "jane.payments@mail.example.com",
+        "return_path": "ceo.office@freemail.example.net",
+        "message_id_domain": "freemail.example.net",
+        "links": "0",
+        "attachments": ""
+      },
+      "expected": null,
+      "primary_indicator": null
+    },
+    {
+      "message_id": "rw-1@example.com",
+      "source": "samples/05_obfuscated_links.eml",
+      "sender": "rewards@example.com",
+      "subject": "You have won a prize",
+      "score": 100,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "LNK-IP",
+          "category": "Links",
+          "title": "Link points to a raw IP address",
+          "points": 20,
+          "evidence": "hxxps://rewards[.]example[.]com@203[.]0[.]113[.]50/login"
+        },
+        {
+          "rule_id": "LNK-LOOKALIKE",
+          "category": "Links",
+          "title": "Link domain is a look-alike of the sender's domain",
+          "points": 20,
+          "evidence": "example[.]top ~ example.com"
+        },
+        {
+          "rule_id": "LNK-MISMATCH",
+          "category": "Links",
+          "title": "Link text shows one domain but points to another",
+          "points": 20,
+          "evidence": "text 'https://rewards.example.com/claim' -> bit[.]ly, text 'rewards.example.com' -> 203[.]0[.]113[.]50"
+        },
+        {
+          "rule_id": "LNK-USERINFO",
+          "category": "Links",
+          "title": "URL contains credentials/userinfo ('@') to disguise the real host",
+          "points": 20,
+          "evidence": "hxxps://rewards[.]example[.]com@203[.]0[.]113[.]50/login"
+        },
+        {
+          "rule_id": "LNK-PUNYCODE",
+          "category": "Links",
+          "title": "Link uses punycode / non-ASCII host (possible homograph attack)",
+          "points": 18,
+          "evidence": "hxxp://xn--exmple-cua[.]example[.]top/login"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "bit[.]ly, xn--exmple-cua[.]example[.]top"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=neutral"
+        },
+        {
+          "rule_id": "LNK-SHORTENER",
+          "category": "Links",
+          "title": "Link hides its destination behind a URL shortener",
+          "points": 8,
+          "evidence": "hxxps://bit[.]ly/3xYzAbC"
+        },
+        {
+          "rule_id": "LNK-SUSPICIOUS-TLD",
+          "category": "Links",
+          "title": "Link uses a TLD with a high abuse rate",
+          "points": 6,
+          "evidence": "hxxp://xn--exmple-cua[.]example[.]top/login"
+        },
+        {
+          "rule_id": "LNK-HTTP",
+          "category": "Links",
+          "title": "Link uses unencrypted HTTP",
+          "points": 4,
+          "evidence": "hxxp://xn--exmple-cua[.]example[.]top/login"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "neutral",
+        "dkim": "none",
+        "dmarc": null
+      },
+      "hops": [
+        {
+          "from": "mx.example.org",
+          "by": "inbox.example.org",
+          "ip": "198.51.100.20",
+          "timestamp": 1791543610.0
+        },
+        {
+          "from": "relay.example.invalid",
+          "by": "mx.example.org",
+          "ip": "203.0.113.12",
+          "timestamp": 1791543608.0
+        }
+      ],
+      "details": {
+        "display_name": "Example Rewards",
+        "reply_to": "",
+        "return_path": "",
+        "message_id_domain": "example.com",
+        "links": "4",
+        "attachments": ""
+      },
+      "expected": null,
+      "primary_indicator": null
+    },
+    {
+      "message_id": "MSG-0001",
+      "source": "samples/email_samples.csv",
+      "sender": "sender0@example.com",
+      "subject": "Urgent account review required",
+      "score": 70,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "AUTH-SPF-SOFTFAIL",
+          "category": "Authentication",
+          "title": "SPF soft-fail: sending host is discouraged for the envelope domain",
+          "points": 10,
+          "evidence": "spf=softfail"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "ATT-GENERIC",
+          "category": "Attachments",
+          "title": "Attachment present (type unknown, contents not inspected)",
+          "points": 8,
+          "evidence": "HasAttachment=Yes"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "softfail",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender0@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "suspicious attachment"
+    },
+    {
+      "message_id": "MSG-0002",
+      "source": "samples/email_samples.csv",
+      "sender": "sender1@example.com",
+      "subject": "Urgent account review required",
+      "score": 40,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "pass",
+        "dkim": "none",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender1@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "urgent language"
+    },
+    {
+      "message_id": "MSG-0003",
+      "source": "samples/email_samples.csv",
+      "sender": "sender2@example.com",
+      "subject": "Urgent account review required",
+      "score": 48,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "ATT-GENERIC",
+          "category": "Attachments",
+          "title": "Attachment present (type unknown, contents not inspected)",
+          "points": 8,
+          "evidence": "HasAttachment=Yes"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender2@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "suspicious attachment"
+    },
+    {
+      "message_id": "MSG-0004",
+      "source": "samples/email_samples.csv",
+      "sender": "sender3@example.com",
+      "subject": "Urgent account review required",
+      "score": 60,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-SPF-FAIL",
+          "category": "Authentication",
+          "title": "SPF check failed: sending host is not authorised for the envelope domain",
+          "points": 20,
+          "evidence": "spf=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "fail",
+        "dkim": "none",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender3@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "display-name mismatch"
+    },
+    {
+      "message_id": "MSG-0005",
+      "source": "samples/email_samples.csv",
+      "sender": "sender4@example.com",
+      "subject": "Urgent account review required",
+      "score": 70,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-SPF-FAIL",
+          "category": "Authentication",
+          "title": "SPF check failed: sending host is not authorised for the envelope domain",
+          "points": 20,
+          "evidence": "spf=fail"
+        },
+        {
+          "rule_id": "HDR-REPLYTO",
+          "category": "Header spoofing",
+          "title": "Reply-To points to a different domain than From",
+          "points": 18,
+          "evidence": "From=sender4@example.com; Reply-To=reply4@example.net"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "fail",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "reply4@example.net",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "reply-to mismatch"
+    },
+    {
+      "message_id": "MSG-0006",
+      "source": "samples/email_samples.csv",
+      "sender": "sender5@example.com",
+      "subject": "Urgent account review required",
+      "score": 60,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender5@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "display-name mismatch"
+    },
+    {
+      "message_id": "MSG-0007",
+      "source": "samples/email_samples.csv",
+      "sender": "sender6@example.com",
+      "subject": "Urgent account review required",
+      "score": 48,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "ATT-GENERIC",
+          "category": "Attachments",
+          "title": "Attachment present (type unknown, contents not inspected)",
+          "points": 8,
+          "evidence": "HasAttachment=Yes"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender6@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "suspicious attachment"
+    },
+    {
+      "message_id": "MSG-0008",
+      "source": "samples/email_samples.csv",
+      "sender": "sender7@example.com",
+      "subject": "Urgent account review required",
+      "score": 58,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "HDR-REPLYTO",
+          "category": "Header spoofing",
+          "title": "Reply-To points to a different domain than From",
+          "points": 18,
+          "evidence": "From=sender7@example.com; Reply-To=reply7@example.net"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "reply7@example.net",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "reply-to mismatch"
+    },
+    {
+      "message_id": "MSG-0009",
+      "source": "samples/email_samples.csv",
+      "sender": "sender8@example.com",
+      "subject": "Urgent account review required",
+      "score": 40,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "pass",
+        "dkim": "none",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender8@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "urgent language"
+    },
+    {
+      "message_id": "MSG-0010",
+      "source": "samples/email_samples.csv",
+      "sender": "sender9@example.com",
+      "subject": "Urgent account review required",
+      "score": 60,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender9@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "display-name mismatch"
+    },
+    {
+      "message_id": "MSG-0011",
+      "source": "samples/email_samples.csv",
+      "sender": "sender10@example.com",
+      "subject": "Urgent account review required",
+      "score": 70,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "AUTH-SPF-SOFTFAIL",
+          "category": "Authentication",
+          "title": "SPF soft-fail: sending host is discouraged for the envelope domain",
+          "points": 10,
+          "evidence": "spf=softfail"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "ATT-GENERIC",
+          "category": "Attachments",
+          "title": "Attachment present (type unknown, contents not inspected)",
+          "points": 8,
+          "evidence": "HasAttachment=Yes"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "softfail",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender10@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "suspicious attachment"
+    },
+    {
+      "message_id": "MSG-0012",
+      "source": "samples/email_samples.csv",
+      "sender": "sender11@example.com",
+      "subject": "Urgent account review required",
+      "score": 68,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "HDR-REPLYTO",
+          "category": "Header spoofing",
+          "title": "Reply-To points to a different domain than From",
+          "points": 18,
+          "evidence": "From=sender11@example.com; Reply-To=reply11@example.net"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "AUTH-SPF-SOFTFAIL",
+          "category": "Authentication",
+          "title": "SPF soft-fail: sending host is discouraged for the envelope domain",
+          "points": 10,
+          "evidence": "spf=softfail"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "softfail",
+        "dkim": "none",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "reply11@example.net",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "reply-to mismatch"
+    },
+    {
+      "message_id": "MSG-0013",
+      "source": "samples/email_samples.csv",
+      "sender": "sender12@example.com",
+      "subject": "Urgent account review required",
+      "score": 52,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "pass",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender12@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "urgent language"
+    },
+    {
+      "message_id": "MSG-0014",
+      "source": "samples/email_samples.csv",
+      "sender": "sender13@example.com",
+      "subject": "Urgent account review required",
+      "score": 52,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "pass",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender13@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "urgent language"
+    },
+    {
+      "message_id": "MSG-0015",
+      "source": "samples/email_samples.csv",
+      "sender": "sender14@example.com",
+      "subject": "Urgent account review required",
+      "score": 52,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "AUTH-SPF-FAIL",
+          "category": "Authentication",
+          "title": "SPF check failed: sending host is not authorised for the envelope domain",
+          "points": 20,
+          "evidence": "spf=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "fail",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender14@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "display-name mismatch"
+    },
+    {
+      "message_id": "MSG-0016",
+      "source": "samples/email_samples.csv",
+      "sender": "sender15@example.com",
+      "subject": "Urgent account review required",
+      "score": 40,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "pass",
+        "dkim": "none",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender15@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "urgent language"
+    },
+    {
+      "message_id": "MSG-0017",
+      "source": "samples/email_samples.csv",
+      "sender": "sender16@example.com",
+      "subject": "Urgent account review required",
+      "score": 52,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "pass",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender16@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "urgent language"
+    },
+    {
+      "message_id": "MSG-0018",
+      "source": "samples/email_samples.csv",
+      "sender": "sender17@example.com",
+      "subject": "Urgent account review required",
+      "score": 42,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "AUTH-SPF-SOFTFAIL",
+          "category": "Authentication",
+          "title": "SPF soft-fail: sending host is discouraged for the envelope domain",
+          "points": 10,
+          "evidence": "spf=softfail"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "softfail",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender17@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "lookalike domain"
+    },
+    {
+      "message_id": "MSG-0019",
+      "source": "samples/email_samples.csv",
+      "sender": "sender18@example.com",
+      "subject": "Urgent account review required",
+      "score": 70,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "AUTH-SPF-SOFTFAIL",
+          "category": "Authentication",
+          "title": "SPF soft-fail: sending host is discouraged for the envelope domain",
+          "points": 10,
+          "evidence": "spf=softfail"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "ATT-GENERIC",
+          "category": "Attachments",
+          "title": "Attachment present (type unknown, contents not inspected)",
+          "points": 8,
+          "evidence": "HasAttachment=Yes"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "softfail",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender18@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "suspicious attachment"
+    },
+    {
+      "message_id": "MSG-0020",
+      "source": "samples/email_samples.csv",
+      "sender": "sender19@example.com",
+      "subject": "Urgent account review required",
+      "score": 78,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "HDR-REPLYTO",
+          "category": "Header spoofing",
+          "title": "Reply-To points to a different domain than From",
+          "points": 18,
+          "evidence": "From=sender19@example.com; Reply-To=reply19@example.net"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "reply19@example.net",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "reply-to mismatch"
+    },
+    {
+      "message_id": "MSG-0021",
+      "source": "samples/email_samples.csv",
+      "sender": "sender20@example.com",
+      "subject": "Urgent account review required",
+      "score": 62,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "AUTH-SPF-SOFTFAIL",
+          "category": "Authentication",
+          "title": "SPF soft-fail: sending host is discouraged for the envelope domain",
+          "points": 10,
+          "evidence": "spf=softfail"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "softfail",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender20@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "display-name mismatch"
+    },
+    {
+      "message_id": "MSG-0022",
+      "source": "samples/email_samples.csv",
+      "sender": "sender21@example.com",
+      "subject": "Urgent account review required",
+      "score": 58,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "HDR-REPLYTO",
+          "category": "Header spoofing",
+          "title": "Reply-To points to a different domain than From",
+          "points": 18,
+          "evidence": "From=sender21@example.com; Reply-To=reply21@example.net"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "reply21@example.net",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "reply-to mismatch"
+    },
+    {
+      "message_id": "MSG-0023",
+      "source": "samples/email_samples.csv",
+      "sender": "sender22@example.com",
+      "subject": "Urgent account review required",
+      "score": 60,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-SPF-FAIL",
+          "category": "Authentication",
+          "title": "SPF check failed: sending host is not authorised for the envelope domain",
+          "points": 20,
+          "evidence": "spf=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "ATT-GENERIC",
+          "category": "Attachments",
+          "title": "Attachment present (type unknown, contents not inspected)",
+          "points": 8,
+          "evidence": "HasAttachment=Yes"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "fail",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender22@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "suspicious attachment"
+    },
+    {
+      "message_id": "MSG-0024",
+      "source": "samples/email_samples.csv",
+      "sender": "sender23@example.com",
+      "subject": "Urgent account review required",
+      "score": 48,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "none",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender23@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "lookalike domain"
+    },
+    {
+      "message_id": "MSG-0025",
+      "source": "samples/email_samples.csv",
+      "sender": "sender24@example.com",
+      "subject": "Urgent account review required",
+      "score": 68,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "HDR-REPLYTO",
+          "category": "Header spoofing",
+          "title": "Reply-To points to a different domain than From",
+          "points": 18,
+          "evidence": "From=sender24@example.com; Reply-To=reply24@example.net"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "AUTH-SPF-SOFTFAIL",
+          "category": "Authentication",
+          "title": "SPF soft-fail: sending host is discouraged for the envelope domain",
+          "points": 10,
+          "evidence": "spf=softfail"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "softfail",
+        "dkim": "none",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "reply24@example.net",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "reply-to mismatch"
+    },
+    {
+      "message_id": "MSG-0026",
+      "source": "samples/email_samples.csv",
+      "sender": "sender25@example.com",
+      "subject": "Urgent account review required",
+      "score": 50,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "AUTH-SPF-SOFTFAIL",
+          "category": "Authentication",
+          "title": "SPF soft-fail: sending host is discouraged for the envelope domain",
+          "points": 10,
+          "evidence": "spf=softfail"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "ATT-GENERIC",
+          "category": "Attachments",
+          "title": "Attachment present (type unknown, contents not inspected)",
+          "points": 8,
+          "evidence": "HasAttachment=Yes"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "softfail",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender25@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "suspicious attachment"
+    },
+    {
+      "message_id": "MSG-0027",
+      "source": "samples/email_samples.csv",
+      "sender": "sender26@example.com",
+      "subject": "Urgent account review required",
+      "score": 60,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-SPF-FAIL",
+          "category": "Authentication",
+          "title": "SPF check failed: sending host is not authorised for the envelope domain",
+          "points": 20,
+          "evidence": "spf=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "fail",
+        "dkim": "none",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender26@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "lookalike domain"
+    },
+    {
+      "message_id": "MSG-0028",
+      "source": "samples/email_samples.csv",
+      "sender": "sender27@example.com",
+      "subject": "Account update",
+      "score": 0,
+      "level": "Low",
+      "findings": [],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "pass",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender27@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Low",
+      "primary_indicator": "safe"
+    },
+    {
+      "message_id": "MSG-0029",
+      "source": "samples/email_samples.csv",
+      "sender": "sender28@example.com",
+      "subject": "Account update",
+      "score": 0,
+      "level": "Low",
+      "findings": [],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "pass",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender28@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Low",
+      "primary_indicator": "safe"
+    },
+    {
+      "message_id": "MSG-0030",
+      "source": "samples/email_samples.csv",
+      "sender": "sender29@example.com",
+      "subject": "Urgent account review required",
+      "score": 72,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "AUTH-SPF-FAIL",
+          "category": "Authentication",
+          "title": "SPF check failed: sending host is not authorised for the envelope domain",
+          "points": 20,
+          "evidence": "spf=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "fail",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender29@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "lookalike domain"
+    },
+    {
+      "message_id": "MSG-0031",
+      "source": "samples/email_samples.csv",
+      "sender": "sender30@example.com",
+      "subject": "Urgent account review required",
+      "score": 66,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "HDR-REPLYTO",
+          "category": "Header spoofing",
+          "title": "Reply-To points to a different domain than From",
+          "points": 18,
+          "evidence": "From=sender30@example.com; Reply-To=reply30@example.net"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "none",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "reply30@example.net",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "reply-to mismatch"
+    },
+    {
+      "message_id": "MSG-0032",
+      "source": "samples/email_samples.csv",
+      "sender": "sender31@example.com",
+      "subject": "Urgent account review required",
+      "score": 32,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "pass",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender31@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "urgent language"
+    },
+    {
+      "message_id": "MSG-0033",
+      "source": "samples/email_samples.csv",
+      "sender": "sender32@example.com",
+      "subject": "Urgent account review required",
+      "score": 32,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "pass",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender32@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "urgent language"
+    },
+    {
+      "message_id": "MSG-0034",
+      "source": "samples/email_samples.csv",
+      "sender": "sender33@example.com",
+      "subject": "Urgent account review required",
+      "score": 32,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "pass",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender33@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "urgent language"
+    },
+    {
+      "message_id": "MSG-0035",
+      "source": "samples/email_samples.csv",
+      "sender": "sender34@example.com",
+      "subject": "Urgent account review required",
+      "score": 60,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender34@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "lookalike domain"
+    },
+    {
+      "message_id": "MSG-0036",
+      "source": "samples/email_samples.csv",
+      "sender": "sender35@example.com",
+      "subject": "Urgent account review required",
+      "score": 60,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-SPF-FAIL",
+          "category": "Authentication",
+          "title": "SPF check failed: sending host is not authorised for the envelope domain",
+          "points": 20,
+          "evidence": "spf=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "fail",
+        "dkim": "none",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender35@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "lookalike domain"
+    },
+    {
+      "message_id": "MSG-0037",
+      "source": "samples/email_samples.csv",
+      "sender": "sender36@example.com",
+      "subject": "Urgent account review required",
+      "score": 70,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "AUTH-SPF-SOFTFAIL",
+          "category": "Authentication",
+          "title": "SPF soft-fail: sending host is discouraged for the envelope domain",
+          "points": 10,
+          "evidence": "spf=softfail"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "ATT-GENERIC",
+          "category": "Attachments",
+          "title": "Attachment present (type unknown, contents not inspected)",
+          "points": 8,
+          "evidence": "HasAttachment=Yes"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "softfail",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender36@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "suspicious attachment"
+    },
+    {
+      "message_id": "MSG-0038",
+      "source": "samples/email_samples.csv",
+      "sender": "sender37@example.com",
+      "subject": "Urgent account review required",
+      "score": 78,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-SPF-FAIL",
+          "category": "Authentication",
+          "title": "SPF check failed: sending host is not authorised for the envelope domain",
+          "points": 20,
+          "evidence": "spf=fail"
+        },
+        {
+          "rule_id": "HDR-REPLYTO",
+          "category": "Header spoofing",
+          "title": "Reply-To points to a different domain than From",
+          "points": 18,
+          "evidence": "From=sender37@example.com; Reply-To=reply37@example.net"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "fail",
+        "dkim": "none",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "reply37@example.net",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "reply-to mismatch"
+    },
+    {
+      "message_id": "MSG-0039",
+      "source": "samples/email_samples.csv",
+      "sender": "sender38@example.com",
+      "subject": "Account update",
+      "score": 0,
+      "level": "Low",
+      "findings": [],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "pass",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender38@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Low",
+      "primary_indicator": "safe"
+    },
+    {
+      "message_id": "MSG-0040",
+      "source": "samples/email_samples.csv",
+      "sender": "sender39@example.com",
+      "subject": "Urgent account review required",
+      "score": 50,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "AUTH-SPF-SOFTFAIL",
+          "category": "Authentication",
+          "title": "SPF soft-fail: sending host is discouraged for the envelope domain",
+          "points": 10,
+          "evidence": "spf=softfail"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "softfail",
+        "dkim": "none",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender39@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "display-name mismatch"
+    },
+    {
+      "message_id": "MSG-0041",
+      "source": "samples/email_samples.csv",
+      "sender": "sender40@example.com",
+      "subject": "Urgent account review required",
+      "score": 40,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "pass",
+        "dkim": "none",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender40@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "urgent language"
+    },
+    {
+      "message_id": "MSG-0042",
+      "source": "samples/email_samples.csv",
+      "sender": "sender41@example.com",
+      "subject": "Urgent account review required",
+      "score": 78,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-SPF-FAIL",
+          "category": "Authentication",
+          "title": "SPF check failed: sending host is not authorised for the envelope domain",
+          "points": 20,
+          "evidence": "spf=fail"
+        },
+        {
+          "rule_id": "HDR-REPLYTO",
+          "category": "Header spoofing",
+          "title": "Reply-To points to a different domain than From",
+          "points": 18,
+          "evidence": "From=sender41@example.com; Reply-To=reply41@example.net"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "fail",
+        "dkim": "none",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "reply41@example.net",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "reply-to mismatch"
+    },
+    {
+      "message_id": "MSG-0043",
+      "source": "samples/email_samples.csv",
+      "sender": "sender42@example.com",
+      "subject": "Urgent account review required",
+      "score": 60,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender42@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "display-name mismatch"
+    },
+    {
+      "message_id": "MSG-0044",
+      "source": "samples/email_samples.csv",
+      "sender": "sender43@example.com",
+      "subject": "Urgent account review required",
+      "score": 68,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "ATT-GENERIC",
+          "category": "Attachments",
+          "title": "Attachment present (type unknown, contents not inspected)",
+          "points": 8,
+          "evidence": "HasAttachment=Yes"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender43@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "suspicious attachment"
+    },
+    {
+      "message_id": "MSG-0045",
+      "source": "samples/email_samples.csv",
+      "sender": "sender44@example.com",
+      "subject": "Urgent account review required",
+      "score": 68,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-SPF-FAIL",
+          "category": "Authentication",
+          "title": "SPF check failed: sending host is not authorised for the envelope domain",
+          "points": 20,
+          "evidence": "spf=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "ATT-GENERIC",
+          "category": "Attachments",
+          "title": "Attachment present (type unknown, contents not inspected)",
+          "points": 8,
+          "evidence": "HasAttachment=Yes"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "fail",
+        "dkim": "none",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender44@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "suspicious attachment"
+    },
+    {
+      "message_id": "MSG-0046",
+      "source": "samples/email_samples.csv",
+      "sender": "sender45@example.com",
+      "subject": "Urgent account review required",
+      "score": 48,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "none",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender45@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "lookalike domain"
+    },
+    {
+      "message_id": "MSG-0047",
+      "source": "samples/email_samples.csv",
+      "sender": "sender46@example.com",
+      "subject": "Urgent account review required",
+      "score": 50,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "AUTH-SPF-SOFTFAIL",
+          "category": "Authentication",
+          "title": "SPF soft-fail: sending host is discouraged for the envelope domain",
+          "points": 10,
+          "evidence": "spf=softfail"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "softfail",
+        "dkim": "none",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender46@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "lookalike domain"
+    },
+    {
+      "message_id": "MSG-0048",
+      "source": "samples/email_samples.csv",
+      "sender": "sender47@example.com",
+      "subject": "Account update",
+      "score": 0,
+      "level": "Low",
+      "findings": [],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "pass",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender47@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Low",
+      "primary_indicator": "safe"
+    },
+    {
+      "message_id": "MSG-0049",
+      "source": "samples/email_samples.csv",
+      "sender": "sender48@example.com",
+      "subject": "Urgent account review required",
+      "score": 66,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "HDR-REPLYTO",
+          "category": "Header spoofing",
+          "title": "Reply-To points to a different domain than From",
+          "points": 18,
+          "evidence": "From=sender48@example.com; Reply-To=reply48@example.net"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "none",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "reply48@example.net",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "reply-to mismatch"
+    },
+    {
+      "message_id": "MSG-0050",
+      "source": "samples/email_samples.csv",
+      "sender": "sender49@example.com",
+      "subject": "Urgent account review required",
+      "score": 48,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "none",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender49@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "display-name mismatch"
+    },
+    {
+      "message_id": "MSG-0051",
+      "source": "samples/email_samples.csv",
+      "sender": "sender50@example.com",
+      "subject": "Urgent account review required",
+      "score": 72,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "AUTH-SPF-FAIL",
+          "category": "Authentication",
+          "title": "SPF check failed: sending host is not authorised for the envelope domain",
+          "points": 20,
+          "evidence": "spf=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "fail",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender50@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "display-name mismatch"
+    },
+    {
+      "message_id": "MSG-0052",
+      "source": "samples/email_samples.csv",
+      "sender": "sender51@example.com",
+      "subject": "Urgent account review required",
+      "score": 68,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "ATT-GENERIC",
+          "category": "Attachments",
+          "title": "Attachment present (type unknown, contents not inspected)",
+          "points": 8,
+          "evidence": "HasAttachment=Yes"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender51@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "suspicious attachment"
+    },
+    {
+      "message_id": "MSG-0053",
+      "source": "samples/email_samples.csv",
+      "sender": "sender52@example.com",
+      "subject": "Urgent account review required",
+      "score": 32,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "pass",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender52@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "urgent language"
+    },
+    {
+      "message_id": "MSG-0054",
+      "source": "samples/email_samples.csv",
+      "sender": "sender53@example.com",
+      "subject": "Urgent account review required",
+      "score": 66,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "HDR-REPLYTO",
+          "category": "Header spoofing",
+          "title": "Reply-To points to a different domain than From",
+          "points": 18,
+          "evidence": "From=sender53@example.com; Reply-To=reply53@example.net"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "none",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "reply53@example.net",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "reply-to mismatch"
+    },
+    {
+      "message_id": "MSG-0055",
+      "source": "samples/email_samples.csv",
+      "sender": "sender54@example.com",
+      "subject": "Urgent account review required",
+      "score": 68,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "HDR-REPLYTO",
+          "category": "Header spoofing",
+          "title": "Reply-To points to a different domain than From",
+          "points": 18,
+          "evidence": "From=sender54@example.com; Reply-To=reply54@example.net"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "AUTH-SPF-SOFTFAIL",
+          "category": "Authentication",
+          "title": "SPF soft-fail: sending host is discouraged for the envelope domain",
+          "points": 10,
+          "evidence": "spf=softfail"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "softfail",
+        "dkim": "none",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "reply54@example.net",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "reply-to mismatch"
+    },
+    {
+      "message_id": "MSG-0056",
+      "source": "samples/email_samples.csv",
+      "sender": "sender55@example.com",
+      "subject": "Urgent account review required",
+      "score": 72,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "AUTH-SPF-FAIL",
+          "category": "Authentication",
+          "title": "SPF check failed: sending host is not authorised for the envelope domain",
+          "points": 20,
+          "evidence": "spf=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "fail",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender55@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "display-name mismatch"
+    },
+    {
+      "message_id": "MSG-0057",
+      "source": "samples/email_samples.csv",
+      "sender": "sender56@example.com",
+      "subject": "Urgent account review required",
+      "score": 78,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "HDR-REPLYTO",
+          "category": "Header spoofing",
+          "title": "Reply-To points to a different domain than From",
+          "points": 18,
+          "evidence": "From=sender56@example.com; Reply-To=reply56@example.net"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "reply56@example.net",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "reply-to mismatch"
+    },
+    {
+      "message_id": "MSG-0058",
+      "source": "samples/email_samples.csv",
+      "sender": "sender57@example.com",
+      "subject": "Urgent account review required",
+      "score": 72,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "AUTH-SPF-FAIL",
+          "category": "Authentication",
+          "title": "SPF check failed: sending host is not authorised for the envelope domain",
+          "points": 20,
+          "evidence": "spf=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "fail",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender57@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "display-name mismatch"
+    },
+    {
+      "message_id": "MSG-0059",
+      "source": "samples/email_samples.csv",
+      "sender": "sender58@example.com",
+      "subject": "Urgent account review required",
+      "score": 48,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "none",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender58@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "lookalike domain"
+    },
+    {
+      "message_id": "MSG-0060",
+      "source": "samples/email_samples.csv",
+      "sender": "sender59@example.com",
+      "subject": "Urgent account review required",
+      "score": 52,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "AUTH-SPF-FAIL",
+          "category": "Authentication",
+          "title": "SPF check failed: sending host is not authorised for the envelope domain",
+          "points": 20,
+          "evidence": "spf=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "fail",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender59@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "display-name mismatch"
+    },
+    {
+      "message_id": "MSG-0061",
+      "source": "samples/email_samples.csv",
+      "sender": "sender60@example.com",
+      "subject": "Urgent account review required",
+      "score": 50,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "AUTH-SPF-SOFTFAIL",
+          "category": "Authentication",
+          "title": "SPF soft-fail: sending host is discouraged for the envelope domain",
+          "points": 10,
+          "evidence": "spf=softfail"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "ATT-GENERIC",
+          "category": "Attachments",
+          "title": "Attachment present (type unknown, contents not inspected)",
+          "points": 8,
+          "evidence": "HasAttachment=Yes"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "softfail",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender60@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "suspicious attachment"
+    },
+    {
+      "message_id": "MSG-0062",
+      "source": "samples/email_samples.csv",
+      "sender": "sender61@example.com",
+      "subject": "Urgent account review required",
+      "score": 68,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "ATT-GENERIC",
+          "category": "Attachments",
+          "title": "Attachment present (type unknown, contents not inspected)",
+          "points": 8,
+          "evidence": "HasAttachment=Yes"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender61@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "suspicious attachment"
+    },
+    {
+      "message_id": "MSG-0063",
+      "source": "samples/email_samples.csv",
+      "sender": "sender62@example.com",
+      "subject": "Urgent account review required",
+      "score": 52,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "AUTH-SPF-FAIL",
+          "category": "Authentication",
+          "title": "SPF check failed: sending host is not authorised for the envelope domain",
+          "points": 20,
+          "evidence": "spf=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "fail",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender62@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "lookalike domain"
+    },
+    {
+      "message_id": "MSG-0064",
+      "source": "samples/email_samples.csv",
+      "sender": "sender63@example.com",
+      "subject": "Urgent account review required",
+      "score": 70,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-SPF-FAIL",
+          "category": "Authentication",
+          "title": "SPF check failed: sending host is not authorised for the envelope domain",
+          "points": 20,
+          "evidence": "spf=fail"
+        },
+        {
+          "rule_id": "HDR-REPLYTO",
+          "category": "Header spoofing",
+          "title": "Reply-To points to a different domain than From",
+          "points": 18,
+          "evidence": "From=sender63@example.com; Reply-To=reply63@example.net"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "fail",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "reply63@example.net",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "reply-to mismatch"
+    },
+    {
+      "message_id": "MSG-0065",
+      "source": "samples/email_samples.csv",
+      "sender": "sender64@example.com",
+      "subject": "Urgent account review required",
+      "score": 40,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender64@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "lookalike domain"
+    },
+    {
+      "message_id": "MSG-0066",
+      "source": "samples/email_samples.csv",
+      "sender": "sender65@example.com",
+      "subject": "Account update",
+      "score": 0,
+      "level": "Low",
+      "findings": [],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "pass",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender65@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Low",
+      "primary_indicator": "safe"
+    },
+    {
+      "message_id": "MSG-0067",
+      "source": "samples/email_samples.csv",
+      "sender": "sender66@example.com",
+      "subject": "Urgent account review required",
+      "score": 62,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "AUTH-SPF-SOFTFAIL",
+          "category": "Authentication",
+          "title": "SPF soft-fail: sending host is discouraged for the envelope domain",
+          "points": 10,
+          "evidence": "spf=softfail"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "softfail",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender66@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "display-name mismatch"
+    },
+    {
+      "message_id": "MSG-0068",
+      "source": "samples/email_samples.csv",
+      "sender": "sender67@example.com",
+      "subject": "Urgent account review required",
+      "score": 66,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "HDR-REPLYTO",
+          "category": "Header spoofing",
+          "title": "Reply-To points to a different domain than From",
+          "points": 18,
+          "evidence": "From=sender67@example.com; Reply-To=reply67@example.net"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-DKIM-NONE",
+          "category": "Authentication",
+          "title": "No valid DKIM signature present",
+          "points": 8,
+          "evidence": "dkim=none"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "none",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "reply67@example.net",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "reply-to mismatch"
+    },
+    {
+      "message_id": "MSG-0069",
+      "source": "samples/email_samples.csv",
+      "sender": "sender68@example.com",
+      "subject": "Urgent account review required",
+      "score": 32,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "pass",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender68@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "urgent language"
+    },
+    {
+      "message_id": "MSG-0070",
+      "source": "samples/email_samples.csv",
+      "sender": "sender69@example.com",
+      "subject": "Urgent account review required",
+      "score": 40,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender69@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "display-name mismatch"
+    },
+    {
+      "message_id": "MSG-0071",
+      "source": "samples/email_samples.csv",
+      "sender": "sender70@example.com",
+      "subject": "Urgent account review required",
+      "score": 40,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender70@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "lookalike domain"
+    },
+    {
+      "message_id": "MSG-0072",
+      "source": "samples/email_samples.csv",
+      "sender": "sender71@example.com",
+      "subject": "Urgent account review required",
+      "score": 42,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "AUTH-SPF-SOFTFAIL",
+          "category": "Authentication",
+          "title": "SPF soft-fail: sending host is discouraged for the envelope domain",
+          "points": 10,
+          "evidence": "spf=softfail"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "softfail",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender71@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "lookalike domain"
+    },
+    {
+      "message_id": "MSG-0073",
+      "source": "samples/email_samples.csv",
+      "sender": "sender72@example.com",
+      "subject": "Urgent account review required",
+      "score": 62,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "AUTH-SPF-SOFTFAIL",
+          "category": "Authentication",
+          "title": "SPF soft-fail: sending host is discouraged for the envelope domain",
+          "points": 10,
+          "evidence": "spf=softfail"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "softfail",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender72@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "lookalike domain"
+    },
+    {
+      "message_id": "MSG-0074",
+      "source": "samples/email_samples.csv",
+      "sender": "sender73@example.com",
+      "subject": "Urgent account review required",
+      "score": 58,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "HDR-REPLYTO",
+          "category": "Header spoofing",
+          "title": "Reply-To points to a different domain than From",
+          "points": 18,
+          "evidence": "From=sender73@example.com; Reply-To=reply73@example.net"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "reply73@example.net",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "reply-to mismatch"
+    },
+    {
+      "message_id": "MSG-0075",
+      "source": "samples/email_samples.csv",
+      "sender": "sender74@example.com",
+      "subject": "Account update",
+      "score": 0,
+      "level": "Low",
+      "findings": [],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "pass",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender74@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Low",
+      "primary_indicator": "safe"
+    },
+    {
+      "message_id": "MSG-0076",
+      "source": "samples/email_samples.csv",
+      "sender": "sender75@example.com",
+      "subject": "Account update",
+      "score": 0,
+      "level": "Low",
+      "findings": [],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "pass",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender75@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Low",
+      "primary_indicator": "safe"
+    },
+    {
+      "message_id": "MSG-0077",
+      "source": "samples/email_samples.csv",
+      "sender": "sender76@example.com",
+      "subject": "Urgent account review required",
+      "score": 40,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender76@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "display-name mismatch"
+    },
+    {
+      "message_id": "MSG-0078",
+      "source": "samples/email_samples.csv",
+      "sender": "sender77@example.com",
+      "subject": "Account update",
+      "score": 0,
+      "level": "Low",
+      "findings": [],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "pass",
+        "dkim": "pass",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender77@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Low",
+      "primary_indicator": "safe"
+    },
+    {
+      "message_id": "MSG-0079",
+      "source": "samples/email_samples.csv",
+      "sender": "sender78@example.com",
+      "subject": "Urgent account review required",
+      "score": 78,
+      "level": "High",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "HDR-REPLYTO",
+          "category": "Header spoofing",
+          "title": "Reply-To points to a different domain than From",
+          "points": 18,
+          "evidence": "From=sender78@example.com; Reply-To=reply78@example.net"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "AUTH-SPF-NONE",
+          "category": "Authentication",
+          "title": "No usable SPF result",
+          "points": 8,
+          "evidence": "spf=none"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "none",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "reply78@example.net",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "Medium",
+      "primary_indicator": "reply-to mismatch"
+    },
+    {
+      "message_id": "MSG-0080",
+      "source": "samples/email_samples.csv",
+      "sender": "sender79@example.com",
+      "subject": "Urgent account review required",
+      "score": 52,
+      "level": "Medium",
+      "findings": [
+        {
+          "rule_id": "AUTH-DKIM-FAIL",
+          "category": "Authentication",
+          "title": "DKIM signature failed verification",
+          "points": 20,
+          "evidence": "dkim=fail"
+        },
+        {
+          "rule_id": "BODY-URGENCY",
+          "category": "Language",
+          "title": "Urgent / time-pressure language",
+          "points": 12,
+          "evidence": "subject: 'urgent'"
+        },
+        {
+          "rule_id": "LNK-RESERVED-TLD",
+          "category": "Links",
+          "title": "Link uses a reserved/non-routable TLD that cannot be legitimate",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        },
+        {
+          "rule_id": "LNK-UNRELATED",
+          "category": "Links",
+          "title": "Link domain is unrelated to the sender's domain",
+          "points": 10,
+          "evidence": "account-check[.]invalid"
+        }
+      ],
+      "notes": [
+        "Links were analysed statically; no URL was fetched or resolved."
+      ],
+      "auth": {
+        "spf": "pass",
+        "dkim": "fail",
+        "dmarc": null
+      },
+      "hops": [],
+      "details": {
+        "display_name": "",
+        "reply_to": "sender79@example.com",
+        "return_path": "",
+        "message_id_domain": "",
+        "links": "1",
+        "attachments": ""
+      },
+      "expected": "High",
+      "primary_indicator": "urgent language"
+    }
+  ]
+}

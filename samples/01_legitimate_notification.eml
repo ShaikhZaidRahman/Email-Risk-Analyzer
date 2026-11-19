@@ -1,0 +1,20 @@
+Received: from mail.example.com (mail.example.com [198.51.100.10]) by mx.example.org with ESMTPS id a1; Mon, 05 Oct 2026 09:00:05 +0000
+Received: from app01.example.com (app01.example.com [10.0.0.5]) by mail.example.com with ESMTP id b2; Mon, 05 Oct 2026 09:00:01 +0000
+Authentication-Results: mx.example.org; spf=pass smtp.mailfrom=example.com; dkim=pass header.d=example.com; dmarc=pass header.from=example.com
+DKIM-Signature: v=1; a=rsa-sha256; d=example.com; s=sel1; h=from:to:subject:date; bh=AAAA; b=BBBB
+Return-Path: <bounce@example.com>
+From: Example Billing <billing@example.com>
+To: user@example.org
+Subject: Your October statement is ready
+Date: Mon, 05 Oct 2026 09:00:00 +0000
+Message-ID: <20261005090000.1234@mail.example.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+
+Hello,
+
+Your October statement is now available. You can view it any time at
+https://portal.example.com/statements
+
+Thanks,
+Example Billing
